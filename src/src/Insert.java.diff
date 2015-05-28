@@ -1,0 +1,127 @@
+34,38c34,102
+<             str1 = "insert into " + getTable().createValue() + " values(";
+<             localObject = getValues();
+<             if (localObject != null) {
+<                 str1 = str1 + ((SelectItem) localObject).getValue().create();
+<                 localObject = (SelectItem) ((SelectItem) localObject).getNext();
+---
+>             String str1 = "insert into " + getTable().createValue() + "(";
+>             SelectItem localObject = getValues();
+>             if (!AccessDB.getDBMS().equals("None")) {
+>                 if (AccessDB.checkOpenDB()) {
+>                     try {
+>                         Statement localStatement = AccessDB.getConnection().createStatement();
+>                         String sql = "select column_name, data_type, column_length, column_id from table_view_schemes where table_name = '" + getTable().createValue() + "' order by column_id";
+> 
+>                         java.sql.ResultSet localResultSet = localStatement.executeQuery(sql);
+>                         if (localObject != null) {
+>                             String temp = ((SelectItem) localObject).getName();
+>                             if (temp.equals("wrongSelectName")) {
+>                                 while (localResultSet.next()) {
+>                                     temp = localResultSet.getString("column_name");
+>                                     System.out.println(temp);
+>                                     if ((temp.equals("vts_timeDB")) || (temp.equals("vte_timeDB"))) {
+>                                         continue;
+>                                     } else {
+>                                         break;
+>                                     }
+>                                 }
+>                             }
+>                             str1 += temp;
+>                             localObject = (SelectItem) ((SelectItem) localObject).getNext();
+>                         }
+>                         while (localObject != null) {
+>                             String temp = ((SelectItem) localObject).getName();
+>                             if (temp.equals("wrongSelectName")) {
+>                                 while (localResultSet.next()) {
+>                                     temp = localResultSet.getString("column_name");
+>                                     if ((temp.equals("vts_timeDB")) || (temp.equals("vte_timeDB"))) {
+>                                         continue;
+>                                     } else {
+>                                         break;
+>                                     }
+>                                 }
+>                             }
+>                             str1 += ", " + temp;
+>                             localObject = (SelectItem) ((SelectItem) localObject).getNext();
+>                         }
+> 
+>                         str1 += ") values (";
+>                         localObject = getValues();
+>                         if (localObject != null) {
+>                             str1 = str1 + ((SelectItem) localObject).getValue().create();
+>                             localObject = (SelectItem) ((SelectItem) localObject).getNext();
+>                         }
+>                         while (localObject != null) {
+>                             str1 = str1 + ", " + ((SelectItem) localObject).getValue().create();
+>                             localObject = (SelectItem) ((SelectItem) localObject).getNext();
+>                         }
+>                         str1 = str1 + ")";
+>                         System.out.println(str1);
+>                         while (localResultSet.next()) {
+>                             String str = localResultSet.getString("column_name");
+>                             if ((str.equals("vts_timeDB")) || (str.equals("vte_timeDB"))) {
+>                                 continue;
+>                             }
+>                         }
+>                         localResultSet.close();
+>                         localStatement.close();
+>                         String str2 = AccessDB.execStmt(str1);
+>                         return new ResultSet(str2 + " tuples inserted");
+> 
+>                     } catch (SQLException localSQLException) {
+>                         throw new Error(localSQLException.getMessage());
+>                     }
+>                 }
+>                 throw new Error("No database opened");
+40,42c104,140
+<             while (localObject != null) {
+<                 str1 = str1 + ", " + ((SelectItem) localObject).getValue().create();
+<                 localObject = (SelectItem) ((SelectItem) localObject).getNext();
+---
+>         }
+>         String str1 = "insert into " + getTable().createValue() + "(";
+>         if (!AccessDB.getDBMS().equals("None")) {
+>             if (AccessDB.checkOpenDB()) {
+>                 try {
+>                     Statement localStatement = AccessDB.getConnection().createStatement();
+>                     TableItem t = getTable();
+>                     String sql = "select column_name from all_tab_columns where table_name = '" + getTable().createValue().toUpperCase() + "' order by column_id";
+> 
+>                     java.sql.ResultSet localResultSet = localStatement.executeQuery(sql);
+> 
+>                     if (localResultSet.next()) {
+>                         String temp = localResultSet.getString("column_name");
+>                         if ((temp.equals("vts_timeDB")) || (temp.equals("vte_timeDB"))) {
+>                             
+>                         } else {
+>                             str1 += temp;
+>                         }
+>                     }
+>                     
+>                     while (localResultSet.next()) {
+>                         String temp = localResultSet.getString("column_name");
+>                         if ((temp.equals("vts_timeDB")) || (temp.equals("vte_timeDB"))) {
+>                             continue;
+>                         } else {
+>                             str1 += ", " + temp;
+>                         }
+>                     }
+> 
+>                     localResultSet.close();
+>                     localStatement.close();
+> 
+>                 } catch (SQLException localSQLException) {
+>                     throw new Error(localSQLException.getMessage());
+>                 }
+>             } else {
+>                 throw new Error("No database opened");
+44,46d141
+<             str1 = str1 + ")";
+<             String str2 = AccessDB.execStmt(str1);
+<             return new ResultSet(str2 + " tuples inserted");
+48c143,144
+<         String str1 = "insert into " + getTable().createValue() + "\n" + getQuery().create();
+---
+>         str1 += ") \n" + getQuery().create();
+>         System.out.println(str1);
