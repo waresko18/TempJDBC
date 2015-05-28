@@ -1,0 +1,32 @@
+
+218c218,241
+<         localPlainStmt1.setStmt("insert into " + paramString1 + "\n" + "select a0." + str1 + " " + str1 + ", a1." + str1 + " " + str2 + ", " + paramString3 + "\n" + "from " + paramString1 + " a0, " + paramString2 + " a1 \n" + "where a1." + str1 + " > a0." + str1 + " and \n" + "a1." + str1 + " < a0." + str2 + "\n" + paramString4);
+---
+>         String cols = "";
+>         try {
+>             Statement localStatement = AccessDB.getConnection().createStatement();
+>             String sql = "select column_name from table_view_schemes where table_name = '" + paramString1 + "' order by column_id";
+> 
+>             java.sql.ResultSet localResultSet = localStatement.executeQuery(sql);
+> 
+>             String temp = "";
+> 
+>             while (localResultSet.next()) {
+> 
+>                 temp = localResultSet.getString("column_name");
+> 
+>                 System.out.println(temp);
+>                 if ((temp.equals("vts_timeDB")) || (temp.equals("vte_timeDB"))) {
+>                     continue;
+>                 } else {
+>                     cols += ", " + temp;
+>                 }
+>             }
+>         } catch (SQLException ex) {
+>         }
+> 
+>         localPlainStmt1.setStmt("insert into " + paramString1 + "(" + str1 + ", " + str2 + cols + ")\n" + "select a0." + str1 + " " + str1 + ", a1." + str1 + " " + str2 + ", " + paramString3 + "\n" + "from " + paramString1 + " a0, " + paramString2 + " a1 \n" + "where a1." + str1 + " > a0." + str1 + " and \n" + "a1." + str1 + " < a0." + str2 + "\n" + paramString4);
+223c246
+<         localPlainStmt2.setStmt("insert into " + paramString1 + "\n" + "select a1." + str2 + " " + str1 + ", a0." + str2 + " " + str2 + ", " + paramString3 + "\n" + "from " + paramString1 + " a0, " + paramString2 + " a1" + "\n" + "where a1." + str2 + " > a0." + str1 + " and \n" + "a1." + str2 + " < a0." + str2 + " \n" + paramString4);
+---
+>         localPlainStmt2.setStmt("insert into " + paramString1 + "(" + str1 + ", " + str2 + cols + ")\n" + "select a1." + str2 + " " + str1 + ", a0." + str2 + " " + str2 + ", " + paramString3 + "\n" + "from " + paramString1 + " a0, " + paramString2 + " a1" + "\n" + "where a1." + str2 + " > a0." + str1 + " and \n" + "a1." + str2 + " < a0." + str2 + " \n" + paramString4);
