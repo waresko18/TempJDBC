@@ -1,0 +1,21 @@
+14a15,34
+>     public Vector<String> getHeaders() {
+>         Vector<String> result = new Vector<>();
+>         ColumnDesc paramColumnDesc = colDesc;
+>         while (paramColumnDesc != null) {
+>             if (paramColumnDesc.getType() == 10) {
+>                 if (paramColumnDesc.getIsTimestamp()) {
+>                     result.add("valid");
+>                 } else {
+>                     result.add(paramColumnDesc.getColumn());
+>                 }
+>                 paramColumnDesc = paramColumnDesc.getNext().getNext();
+>             } else {
+>                 result.add(paramColumnDesc.getColumn());
+>                 paramColumnDesc = paramColumnDesc.getNext();
+>             }
+>             
+>         }
+>         return result;
+>     }
+> 
